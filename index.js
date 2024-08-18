@@ -22,6 +22,17 @@ const client = new MongoClient(uri, {
   },
 });
 
+const database = client.db("AutoCareDB");
+const serviceCollection = database.collection("services");
+
+// Services GET API
+app.get("/services", async (req, res) => {
+  console.log("services get api is hitting");
+  const services = serviceCollection.find();
+  const result = await services.toArray();
+  res.send(result);
+});
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
