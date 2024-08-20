@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -30,6 +30,15 @@ app.get("/services", async (req, res) => {
   console.log("services get api is hitting");
   const services = serviceCollection.find();
   const result = await services.toArray();
+  res.send(result);
+});
+
+// Service Details GET API
+app.get("/services/:id", async (req, res) => {
+  console.log("Service Details api");
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await serviceCollection.findOne(query);
   res.send(result);
 });
 
