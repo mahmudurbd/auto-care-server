@@ -24,6 +24,7 @@ const client = new MongoClient(uri, {
 
 const database = client.db("AutoCareDB");
 const serviceCollection = database.collection("services");
+const bookingsCollection = database.collection("bookings");
 
 // Services GET API
 app.get("/services", async (req, res) => {
@@ -39,6 +40,29 @@ app.get("/services/:id", async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
   const result = await serviceCollection.findOne(query);
+  res.send(result);
+});
+
+// Booking GET API
+app.get("/bookings", async (req, res) => {
+  console.log("Booking get api hitting");
+  console.log(req.query);
+  let query = {};
+  if (req.query?.email) {
+    query = {
+      email: req.query.email,
+    };
+  }
+  const result = await bookingsCollection.find(query).toArray();
+  res.send(result);
+});
+
+// Booking POST API
+app.post("/bookings", async (req, res) => {
+  console.log("Bookings api hitting");
+  const booking = req.body;
+  console.log(booking);
+  const result = await bookingsCollection.insertOne(booking);
   res.send(result);
 });
 
