@@ -66,6 +66,16 @@ app.post("/bookings", async (req, res) => {
   res.send(result);
 });
 
+// Booking DELETE API
+app.delete("/bookings/:id", async (req, res) => {
+  console.log("Booking Delete api hitting");
+  const id = req.params.id;
+  console.log(id);
+  const query = { _id: new ObjectId(id) };
+  const result = await bookingsCollection.deleteOne(query);
+  res.send(result);
+});
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
