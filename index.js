@@ -32,6 +32,29 @@ const client = new MongoClient(uri, {
   },
 });
 
+// custom middlewares
+const logger = async (req, res, next) => {
+  console.log("called: ", req.host, req.originalUrl);
+  next();
+};
+
+const verifyToken = async (req, res, next) => {
+  const token = req.cookies?.token;
+  console.log("verify token in the middleware", token);
+  if (!token) {
+    return res.status(401).send({ message: "Not Authorized" });
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ message: "Not Authorized" });
+    }
+    console.log("value in the token", decoded);
+    req.user = decoded;
+    console.log("user", req.user);
+    next();
+  });
+};
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -77,11 +100,12 @@ async function run() {
     });
 
     // Booking GET API
-    app.get("/bookings", async (req, res) => {
+    app.get("/bookings", logger, verifyToken, async (req, res) => {
       console.log("Booking get api hitting");
-      console.log("Request query:", req.query);
-      console.log("Cookies:", req.cookies); // Log all cookies
-      console.log("Token:", req.cookies.token);
+
+      if (req.query.email !== req.user.data.email) {
+        return res.status(403).send({ message: "Forbidden" });
+      }
       let query = {};
       if (req.query?.email) {
         query = {
